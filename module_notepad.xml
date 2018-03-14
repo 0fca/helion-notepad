@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_notepad" default="compile.module.notepad">
+  <dirname property="module.notepad.basedir" file="${ant.file.module_notepad}"/>
+  
+  <property name="module.jdk.home.notepad" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.notepad" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.notepad" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.notepad" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="notepad.output.dir" value="${module.notepad.basedir}/out/production/Notepad"/>
+  <property name="notepad.testoutput.dir" value="${module.notepad.basedir}/out/test/Notepad"/>
+  
+  <path id="notepad.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="notepad.module.production.classpath">
+    <path refid="${module.jdk.classpath.notepad}"/>
+  </path>
+  
+  <path id="notepad.runtime.production.module.classpath">
+    <pathelement location="${notepad.output.dir}"/>
+  </path>
+  
+  <path id="notepad.module.classpath">
+    <path refid="${module.jdk.classpath.notepad}"/>
+    <pathelement location="${notepad.output.dir}"/>
+  </path>
+  
+  <path id="notepad.runtime.module.classpath">
+    <pathelement location="${notepad.testoutput.dir}"/>
+    <pathelement location="${notepad.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.notepad">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.notepad">
+    <patternset refid="excluded.from.module.notepad"/>
+  </patternset>
+  
+  <path id="notepad.module.sourcepath">
+    <dirset dir="${module.notepad.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.notepad" depends="compile.module.notepad.production,compile.module.notepad.tests" description="Compile module Notepad"/>
+  
+  <target name="compile.module.notepad.production" depends="register.custom.compilers" description="Compile module Notepad; production classes">
+    <mkdir dir="${notepad.output.dir}"/>
+    <javac2 destdir="${notepad.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.notepad}/javac">
+      <compilerarg line="${compiler.args.notepad}"/>
+      <bootclasspath refid="notepad.module.bootclasspath"/>
+      <classpath refid="notepad.module.production.classpath"/>
+      <src refid="notepad.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.notepad"/>
+    </javac2>
+    
+    <copy todir="${notepad.output.dir}">
+      <fileset dir="${module.notepad.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.notepad.tests" depends="register.custom.compilers,compile.module.notepad.production" description="compile module Notepad; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.notepad" description="cleanup module">
+    <delete dir="${notepad.output.dir}"/>
+    <delete dir="${notepad.testoutput.dir}"/>
+  </target>
+</project>

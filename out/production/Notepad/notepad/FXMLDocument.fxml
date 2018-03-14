@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="494.0" prefWidth="728.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="notepad.FXMLDocumentController">
+   <children>
+      <BorderPane prefHeight="494.0" prefWidth="728.0">
+         <top>
+            <HBox alignment="CENTER_LEFT" prefHeight="98.0" prefWidth="728.0" spacing="20.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Label text="Notepad">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="newButton" mnemonicParsing="false" prefHeight="41.0" prefWidth="87.0" text="New..." />
+                  <Button fx:id="saveButton" mnemonicParsing="false" prefHeight="41.0" prefWidth="87.0" text="Save" />
+                  <Button fx:id="openButton" mnemonicParsing="false" prefHeight="41.0" prefWidth="87.0" text="Open" />
+                  <Button fx:id="closeButton" mnemonicParsing="false" prefHeight="41.0" prefWidth="87.0" text="Close" />
+                  <ComboBox fx:id="encodingCbx" prefHeight="39.0" prefWidth="150.0" promptText="Encoding" />
+               </children>
+            </HBox>
+         </top>
+         <left>
+            <ListView fx:id="recentFilesList" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+         </left>
+         <center>
+            <TextArea fx:id="mainTextArea" prefHeight="200.0" prefWidth="200.0" wrapText="true" BorderPane.alignment="CENTER" />
+         </center>
+         <bottom>
+            <Label fx:id="fileNameLabel" BorderPane.alignment="CENTER" />
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>
