@@ -18,21 +18,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.intellij.util.PathUtilRt;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
+import notepad.threading.FileTaskFactory;
+import notepad.threading.Operation;
+import notepad.threading.TaskManager;
 
 /**
  *
@@ -54,8 +59,9 @@ public class FXMLDocumentController implements Initializable {
     private final FileChooser FC = new FileChooser();
 
     private static Properties p = new Properties();
+    private static TaskManager t = TaskManager.getTaskManager();
+    private FileTaskFactory ftf = new FileTaskFactory();
 
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         Alert al = new Alert(Alert.AlertType.ERROR);
@@ -70,46 +76,61 @@ public class FXMLDocumentController implements Initializable {
             tid.setHeaderText("Podaj nazwę pliku:");
             Optional<String> o = tid.showAndWait();
             o.ifPresent(con ->{
-                try {
-                    if(!FilesystemController.newFile(con)){
-                        al.setTitle("Błąd");
-                        al.setHeaderText("Błąd tworzenia pliku");
-                        al.setContentText("Plik już istnieje.");
-                        al.show();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                    ftf.setOperation(Operation.CREATE);
+                    ftf.setParams(new Object[]{con});
+
+                    Task task = t.submitTask(ftf);
+                    task.setOnSucceeded(handler ->{
+                        if(!(Boolean)task.getValue()){
+                            al.setTitle("Błąd");
+                            al.setHeaderText("Błąd tworzenia pliku");
+                            al.setContentText("Plik już istnieje.");
+                            al.show();
+                        }
+                    });
                 fileNameLabel.setText(con);
             });
         });
 
         saveButton.setOnAction(a ->{
-            FilesystemController.saveFile(mainTextArea.getParagraphs(), encodingCbx.getSelectionModel().getSelectedItem());
+            ftf.setOperation(Operation.SAVE);
+            ftf.setParams(new Object[]{mainTextArea.getParagraphs(), encodingCbx.getSelectionModel().getSelectedItem() != null ? encodingCbx.getSelectionModel().getSelectedItem() : "UTF-8"});
+            t.submitTask(ftf);
         });
 
         openButton.setOnAction(a ->{
             File f = FC.showOpenDialog(null);
-            if(f != null){
-                FilesystemController.openFile(f).forEach(line ->{
-                    mainTextArea.appendText(line);
-                });
-               fileNameLabel.setText(f.getName());
+            if(f != null) {
+                ftf.setOperation(Operation.OPEN);
+                ftf.setParams(new Object[]{f});
+                mainTextArea.setText(null);
+                    Task task = t.submitTask(ftf);
+                    task.setOnSucceeded(handler ->{
+                        ((ArrayList)task.getValue()).forEach(line ->{
+                            mainTextArea.appendText(String.valueOf(line));
+                        });
+                    });
             }
         });
 
         closeButton.setOnAction(a ->{
-            recentFilesList.setItems(RECENTS);
-            FilesystemController.closeFile();
-            mainTextArea.setText(null);
+            ftf.setOperation(Operation.CLOSE);
+            t.submitTask(ftf);
         });
 
         recentFilesList.setOnMouseClicked(a ->{
             if(recentFilesList.getItems().size() > 0){
                 File f = Paths.get(recentFilesList.getSelectionModel().getSelectedItem().toString()).toFile();
-                FilesystemController.openFile(f).forEach(line ->{
-                    mainTextArea.appendText(line);
-                });
+                ftf.setOperation(Operation.OPEN);
+                ftf.setParams(new Object[]{f});
+                mainTextArea.setText(null);
+                System.out.println(Platform.isFxApplicationThread());
+                    Task task = t.submitTask(ftf);
+                    task.setOnSucceeded(handler ->{
+                        ((ArrayList)task.getValue()).forEach(line ->{
+                            mainTextArea.appendText(String.valueOf(line));
+                        });
+                    });
             }
         });
     }    

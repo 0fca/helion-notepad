@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import notepad.threading.TaskManager;
 
 /**
  *
@@ -25,6 +26,7 @@ public class Notepad extends Application {
         stage.setTitle("Notepad");
         stage.setScene(scene);
         stage.show();
+        stage.setOnCloseRequest(event -> TaskManager.getTaskManager().kill());
     }
 
     /**

@@ -21,7 +21,7 @@ public final class FilesystemController {
     private static File f;
     private static Properties p = new Properties();
 
-    static List<String> openFile(File file) {
+    public static List<String> openFile(File file) {
         f = file;
         try {
             return Files.readAllLines(f.toPath());
@@ -31,7 +31,7 @@ public final class FilesystemController {
         return null;
     }
 
-    static void closeFile(){
+    public static void closeFile(){
         boolean isThere = false;
 
         for(Path p : RECENTS){
@@ -53,11 +53,12 @@ public final class FilesystemController {
         }
     }
 
-    static void saveFile(Iterable<CharSequence> i, String charset){
+    public static void saveFile(Iterable<CharSequence> i, String charset){
         try{
+            System.out.println(f);
             if(f != null){
-                Charset c = getCharset(charset != null ? charset : "UTF-8");
-                Files.write(f.toPath(), i, c , StandardOpenOption.TRUNCATE_EXISTING);
+                Charset c = getCharset(charset);
+                Files.write(f.toPath(), i, c, StandardOpenOption.TRUNCATE_EXISTING);
             }
         }catch(IOException e){
             e.printStackTrace();
@@ -79,20 +80,17 @@ public final class FilesystemController {
             InputStream in = new FileInputStream(RECENTS_FILE);
 
             p.loadFromXML(in);
-            p.forEach((x,y) ->{
-                RECENTS.add(Paths.get(y.toString()));
-            });
+            p.forEach((x,y) -> RECENTS.add(Paths.get(y.toString())));
         }
         return RECENTS;
     }
 
-    static boolean newFile(String name) throws IOException {
+    public static boolean newFile(String name) throws IOException {
         f = new File(System.getProperty("user.home")+File.separator+name.split("\\.")[0]+".txt");
         return f.createNewFile();
     }
 
     private static Charset getCharset(String charset) {
-
         return Charset.forName(charset);
     }
 }
