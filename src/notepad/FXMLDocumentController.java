@@ -94,7 +94,7 @@ public class FXMLDocumentController implements Initializable {
 
         saveButton.setOnAction(a ->{
             ftf.setOperation(Operation.SAVE);
-            ftf.setParams(new Object[]{mainTextArea.getParagraphs(), encodingCbx.getSelectionModel().getSelectedItem() != null ? encodingCbx.getSelectionModel().getSelectedItem() : "UTF-8"});
+            ftf.setParams(new Object[]{mainTextArea.getParagraphs().toArray(new CharSequence[mainTextArea.getParagraphs().size()]), encodingCbx.getSelectionModel().getSelectedItem() != null ? encodingCbx.getSelectionModel().getSelectedItem() : "UTF-8"});
             t.submitTask(ftf);
         });
 
@@ -110,12 +110,14 @@ public class FXMLDocumentController implements Initializable {
                             mainTextArea.appendText(String.valueOf(line));
                         });
                     });
+                fileNameLabel.setText(f.getAbsolutePath());
             }
         });
 
         closeButton.setOnAction(a ->{
             ftf.setOperation(Operation.CLOSE);
             t.submitTask(ftf);
+            fileNameLabel.setText(null);
         });
 
         recentFilesList.setOnMouseClicked(a ->{
@@ -131,6 +133,7 @@ public class FXMLDocumentController implements Initializable {
                             mainTextArea.appendText(String.valueOf(line));
                         });
                     });
+                    fileNameLabel.setText(f.getAbsolutePath());
             }
         });
     }    

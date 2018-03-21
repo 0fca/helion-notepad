@@ -9,10 +9,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public final class FilesystemController {
 
@@ -53,12 +56,13 @@ public final class FilesystemController {
         }
     }
 
-    public static void saveFile(Iterable<CharSequence> i, String charset){
+    public static void saveFile(CharSequence[] i, String charset){
         try{
-            System.out.println(f);
+            System.out.println("Reaches here while saving...");
             if(f != null){
                 Charset c = getCharset(charset);
-                Files.write(f.toPath(), i, c, StandardOpenOption.TRUNCATE_EXISTING);
+                ObservableList<CharSequence> ol = FXCollections.observableArrayList(i);
+                Files.write(f.toPath(), ol , c, StandardOpenOption.TRUNCATE_EXISTING);
             }
         }catch(IOException e){
             e.printStackTrace();
